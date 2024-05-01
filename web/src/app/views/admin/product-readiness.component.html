@@ -1,0 +1,66 @@
+<c-row>
+    <c-col xs="12">
+        <c-card class="mb-4">
+            <c-card-body>
+                <form cForm class="row g-3">
+                    <c-col md="12">
+                        <label cLabel for="">Products</label>
+                        <tag-input [(ngModel)]="productsToSearch" [ngModelOptions]="{standalone:true}" [identifyBy]="'code'" [onlyFromAutocomplete]="true" theme='minimal' 
+                            placeholder="Select Product" secondaryPlaceholder="Select Product" (onAdd)="doSearch()" (onRemove)="doSearch()">
+                            <tag-input-dropdown [showDropdownIfEmpty]="true" [autocompleteItems]="possibleProducts">
+                                <ng-template let-item="item">
+                                    {{ item.display }}
+                                </ng-template>
+                            </tag-input-dropdown>
+                        </tag-input>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">Filter Apps</label>
+                        <tag-input [(ngModel)]="appsToSearch" [ngModelOptions]="{standalone:true}" [identifyBy]="'id'" [onlyFromAutocomplete]="true" theme='minimal' 
+                            placeholder="App" secondaryPlaceholder="App" (onAdd)="doSearch()" (onRemove)="doSearch()">
+                            <tag-input-dropdown [showDropdownIfEmpty]="true" [autocompleteItems]="possibleApps">
+                                <ng-template let-item="item">
+                                    {{ item.display }}
+                                </ng-template>
+                            </tag-input-dropdown>
+                        </tag-input>
+                    </c-col>
+                </form>
+            </c-card-body>
+        </c-card>
+        
+        <c-card class="mb-4" *ngIf="requests.length > 0">
+            <c-card-body>
+                <table [striped]="true" cTable small>
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th scope="col" *ngFor="let app of filteredApps">
+                                {{app.internalName}}
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let req of requests; index as i">
+                            <td>{{(i>0 && requests[i-1].site.code == req.site.code) ? '':req.site.code}}</td>
+                            <td>
+                                <a [routerLink]="['/admin/product-support',req.site.code,req.product.code]" class="text-decoration-none cursor-pointer">
+                                    <span class="{{req.status == 'COMPLETED' ? 'text-success':'text-danger'}}">{{req.product.code}}</span>
+                                </a>
+                            </td>
+                            <td>{{req.needByDate}}</td>
+                            <td *ngFor="let app of filteredApps">
+                                <div *ngFor="let action of getActions(req, app)">
+                                    <span class="{{action.toIgnore ? 'text-decoration-line-through':''}}">{{ action.environment == 'PRODUCTION' ? 'MP':'STG' }}</span> 
+                                    <svg cIcon name="cilCheck" size="sm" *ngIf="action.status == 'COMPLETED'" class="text-success"></svg>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>

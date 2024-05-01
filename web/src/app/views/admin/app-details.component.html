@@ -1,0 +1,128 @@
+<c-row>
+    <c-col xs="12">
+        <c-card class="mb-4">
+            <c-card-header class="d-flex justify-content-between align-items-center">
+                <strong>App Details</strong>
+                <button type="button" class="btn btn-xs btn-default card-header-button" (click)="addApp()" *ngIf="!appName">Save</button>
+            </c-card-header>
+            <c-card-body>
+                <form cForm class="row g-3">
+                    <c-col md="12">
+                        <label cLabel for="">*Internal Name</label>
+                        <input cFormControl type="text" [(ngModel)]="app.internalName" [ngModelOptions]="{standalone:true}" (blur)="saveApp()" required>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">External Name</label>
+                        <input cFormControl type="text" [(ngModel)]="app.externalName" [ngModelOptions]="{standalone:true}" (blur)="saveApp()">
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Status</label>
+                        <select cSelect [(ngModel)]="app.status" [ngModelOptions]="{standalone:true}" (change)="saveApp()" required>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                        </select>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Category</label>
+                        <select cSelect [(ngModel)]="app.category" [ngModelOptions]="{standalone:true}" (change)="saveApp()" required>
+                            <option value="FACTORY">FACTORY</option>
+                            <option value="DC">DC</option>
+                        </select>
+                    </c-col>
+                    <!-- <c-col md="12">
+                        <label cLabel for="">EPM DRI</label>
+                        <select name="selectedEPM" cSelect id="" [(ngModel)]="app.epm" (change)="saveApp()">
+                            <option value="">Select...</option>
+                            <option *ngFor="let epm of epms" [ngValue]="epm">{{ epm.firstName }} {{ epm.lastName }}</option>
+                        </select>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">DEV DRI</label>
+                        <select name="selectedDev" cSelect id="" [(ngModel)]="app.dev" (change)="saveApp()">
+                            <option value="">Select...</option>
+                            <option *ngFor="let dev of devs" [ngValue]="dev">{{ dev.firstName }} {{ dev.lastName }}</option>
+                        </select>
+                    </c-col> -->
+                    <c-col md="12" *ngIf="appName">
+                        <label cLabel for="">*Main SRE</label>
+                        <select name="selectedSRE" cSelect id="" [(ngModel)]="app.sre" (change)="saveApp()">
+                            <option value="">Select...</option>
+                            <option *ngFor="let sre of sres" [ngValue]="sre">{{ sre.firstName }} {{ sre.lastName }}</option>
+                        </select>
+                    </c-col>
+                    <c-col md="12" *ngIf="appName">
+                        <label cLabel for="">Backup SREs</label>
+                        <tag-input [(ngModel)]="app.backupSres" [ngModelOptions]="{standalone:true}" [identifyBy]="'id'" [onlyFromAutocomplete]="true" theme='minimal' 
+                            placeholder="Add SRE" secondaryPlaceholder="Add SRE" (onAdd)="saveApp()" (onRemove)="saveApp()">
+                            <tag-input-dropdown [showDropdownIfEmpty]="true" [autocompleteItems]="possibleBackupSres">
+                                <ng-template let-item="item">
+                                    {{ item.display }}
+                                </ng-template>
+                            </tag-input-dropdown>
+                        </tag-input>
+                    </c-col>
+                </form>
+            </c-card-body>
+        </c-card>
+
+        <c-card class="mb-4" *ngIf="appName">
+            <c-card-header>
+                <strong>{{app.internalName}}</strong>&nbsp;<small>Configuration</small>
+            </c-card-header>
+            <c-card-body>
+                <form cForm class="row g-3">
+                    <c-input-group>
+                        <span cInputGroupText id="basic-addon1">Add</span>
+                        <select name="configToAdd" cSelect id="" [(ngModel)]="configToAdd" (change)="addConfig()" required>
+                            <option value="" disabled>Standard config...</option>
+                            <option *ngFor="let configType of configTypes" [ngValue]="configType">{{ configType.name }}</option>
+                        </select>
+                    </c-input-group>
+                    <c-col md="12" class="mb-3">
+                        <input cFormControl type="text" [(ngModel)]="customConfigToAdd" [ngModelOptions]="{standalone:true}" (keydown.enter)="addCustomConfig()" maxlength="20" placeholder="Add custom config here if any...">
+                    </c-col>
+                    <c-accordion [alwaysOpen]="true" [flush]="true">
+                        <c-accordion-item #item="cAccordionItem" [visible]="true" *ngFor="let appConfig of app.appConfigs; let i=index">
+                          <ng-template cTemplateId="accordionHeaderTemplate">
+                            <button (click)="item.toggleItem()" [collapsed]="!item.visible" cAccordionButton class="config-header">
+                              {{appConfig.name}}
+                            </button>
+                          </ng-template>
+                          <ng-template cTemplateId="accordionBodyTemplate">
+                            <div class="accordion-body col">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <div>   
+                                        <c-form-check [switch]="true" class="mb-2">
+                                            <input cFormCheckInput type="checkbox" [(ngModel)]="appConfig.multi" [ngModelOptions]="{standalone:true}" (change)="saveApp()" />
+                                            <label cFormCheckLabel>Multi-select</label>
+                                        </c-form-check>
+                                        <c-form-check [switch]="true" class="mb-2" *ngIf="!appConfig.multi">
+                                            <input cFormCheckInput type="checkbox" [(ngModel)]="appConfig.recommend" [ngModelOptions]="{standalone:true}" (change)="saveApp()" />
+                                            <label cFormCheckLabel>
+                                                Auto-recommend <fa-icon [icon]="faInfoCircle" 
+                                                                        cTooltip="Recommend latest stable version depending on the environment"
+                                                                        cTooltipPlacement="bottom"
+                                                                        cTooltipTrigger="click"></fa-icon>
+                                            </label>
+                                        </c-form-check>
+                                    </div>
+                                    <a class="text-decoration-none small cursor-pointer" *ngIf="appConfig.values.length == 0" (click)="deleteConfig(appConfig)"><fa-icon [icon]="faTrashCan"></fa-icon> Delete config</a>
+                                </div>
+                                <input cFormControl type="text" class="mb-2" [(ngModel)]="appConfig.valueToAdd" [ngModelOptions]="{standalone:true}" (keydown.enter)="submitValue(appConfig)" placeholder="Enter value here...">
+                                <div class="col-sm-12 py-1">
+                                    <button cButton size="sm" color="secondary" class="position-relative label-value me-2 mb-2" *ngFor="let value of appConfig.values.slice().reverse()" (click)="copyToClipboard(value.val)">
+                                        {{value.val}} 
+                                        <c-badge color="default">{{value.rolloutPhaseEnum.shortForm}}</c-badge>
+                                        <c-badge color="dark" position="top-end" shape="rounded-pill" class="config-delete-badge" (click)="deleteValue(appConfig, value)"><fa-icon [icon]="faTrashCan"></fa-icon></c-badge>
+                                        <span class="visually-hidden">rollout phase</span>
+                                    </button>
+                                </div>
+                            </div>
+                          </ng-template>
+                        </c-accordion-item>
+                    </c-accordion>
+                </form>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>

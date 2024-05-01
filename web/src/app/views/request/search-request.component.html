@@ -1,0 +1,42 @@
+<c-row>
+    <c-col xs="12">
+        <c-card class="mb-4">
+            <c-card-header>
+              <strong>My Requests</strong>
+            </c-card-header>
+            <c-card-body>
+                <div class="mb-3 row">
+                    <label for="table-complete-search" class="col-xs-3 col-sm-auto col-form-label">Full text search:</label>
+                    <div class="col-xs-3 col-sm-auto">
+                        <input
+                            id="table-complete-search"
+                            type="text"
+                            class="form-control"
+                            name="searchTerm"
+                        />
+                    </div>
+                </div>
+                <table [striped]="true" cTable small>
+                    <thead>
+                    <tr>
+                    <th scope="col">REF</th>
+                    <th scope="col">SITE</th>
+                    <th scope="col">PROD</th>
+                    <th scope="col">STATUS</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let request of requests">
+                            <td>
+                                <a [routerLink]="['/request/details', request.referenceId]" class="text-decoration-none">{{request.referenceId}}</a>
+                            </td>
+                            <td>{{request.siteCode}}</td>
+                            <td>{{request.productCode}}</td>
+                            <td>{{request.status}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>

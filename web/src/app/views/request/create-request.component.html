@@ -1,0 +1,111 @@
+<c-row>
+    <c-col xs="12">
+        <c-card class="mb-4">
+            <c-card-header ngPreserveWhitespaces>
+                <strong>Request Support</strong>
+            </c-card-header>
+            <c-card-body>
+                <form cForm class="row g-3">
+                    <c-col md="12">
+                        <label cLabel for="">*Site</label>
+                        <input cFormControl [(ngModel)]="selectedSiteCode" [ngModelOptions]="{standalone:true}" type="text" class="{{selectedSiteCodeValid ? '':'error'}}" (change)="onChangeSite()" required>
+                        <c-alert color="danger" *ngIf="!selectedSiteCodeValid" class="mt-2">
+                            Invalid Site code
+                        </c-alert>
+                        <!-- <select name="selectedSite" cSelect id="" [(ngModel)]="selectedSite" [ngModelOptions]="{standalone:true}" (change)="onChangeSite()" required>
+                            <option value="">Select site...</option>
+                            <option *ngFor="let site of sites" [ngValue]="site">{{ site.code }}</option>
+                        </select> -->
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Product</label>
+                        <input cFormControl [(ngModel)]="selectedProductCode" [ngModelOptions]="{standalone:true}" type="text" class="{{selectedProductCodeValid ? '':'error'}}" (change)="onChangeProduct()" required>
+                        <c-alert color="danger" *ngIf="!selectedProductCodeValid" class="mt-2">
+                            Invalid Product code or Product not allowed in chosen site
+                        </c-alert>
+                        <!-- <select cSelect id="" name="selectedProduct" [(ngModel)]="selectedProduct" [ngModelOptions]="{standalone:true}" (change)="onChangeProduct()" required>
+                            <option value="">Select product...</option>
+                            <option *ngFor="let product of products" [ngValue]="product">{{ product.code }}</option>
+                        </select> -->
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Need-by-Date</label>
+                        <div class="input-group">
+                            <input
+                                cFormControl
+                                placeholder="yyyy-mm-dd"
+                                name="dp"
+                                ngbDatepicker
+                                [(ngModel)]="request.needByDate"
+                                #d="ngbDatepicker"
+                                (click)="d.toggle()"
+                            />
+                            <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
+                        </div>
+                    </c-col>
+                    <c-col md="12" *ngIf="selectedApps.length > 0">
+                        <label cLabel for="">*Services (Update accordingly)</label>
+                        <c-form-check *ngFor="let app of selectedApps">
+                            <input cFormCheckInput name="selectedApps" [checked]="app.selected" (change)="updateSelectedApps($event, app)"/>
+                            <label cFormCheckLabel for="">{{app.externalName}}</label>
+                        </c-form-check>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">Additional Details</label>
+                        <textarea cFormControl name="description" [(ngModel)]="request.description"></textarea>
+                    </c-col>
+                    <c-col xs="12" class="pt-3">
+                        <button cButton class="me-1" color="primary" type="submit" (click)="submit()" [cModalToggle]="verticallyCenteredModal.id" 
+                        [disabled]="(!selectedSite || !selectedProduct || !selectedAppsCount || !request.needByDate) ? true : false">
+                          Submit form
+                        </button>
+                        <button cButton color="secondary" type="reset" (click)="reset()">
+                          Reset
+                        </button>
+                    </c-col>
+                </form>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>
+
+<c-modal #verticallyCenteredModal alignment="center" id="verticallyCenteredModal" [visible]="showSuccess" (visibleChange)="handleModalChange($event)">
+    <c-modal-header>
+        <h5 cModalTitle>Message</h5>
+        <button [cModalToggle]="verticallyCenteredModal.id" cButtonClose (click)="toggleModal()"></button>
+    </c-modal-header>
+    <c-modal-body>
+
+        <svg xmlns="http://www.w3.org/2000/svg" class="d-none">
+            <symbol id="check-circle-fill" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M16 8A8 8 0 1 1 0 8a8 8 0 0 1 16 0zm-3.97-3.03a.75.75 0 0 0-1.08.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-.01-1.05z"/>
+            </symbol>
+            <symbol id="info-fill" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8 16A8 8 0 1 0 8 0a8 8 0 0 0 0 16zm.93-9.412-1 4.705c-.07.34.029.533.304.533.194 0 .487-.07.686-.246l-.088.416c-.287.346-.92.598-1.465.598-.703 0-1.002-.422-.808-1.319l.738-3.468c.064-.293.006-.399-.287-.47l-.451-.081.082-.381 2.29-.287zM8 5.5a1 1 0 1 1 0-2 1 1 0 0 1 0 2z"/>
+            </symbol>
+            <symbol id="exclamation-triangle-fill" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767L8.982 1.566zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5zm.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2z"/>
+            </symbol>
+        </svg>
+
+        <c-alert color="success" class="d-flex align-items-center">
+            <svg class="bi flex-shrink-0 me-2" width="24" height="24" role="img" aria-label="Info:">
+                <use xlink:href="#check-circle-fill" />
+            </svg>
+            <div>Submitted successfully</div>
+        </c-alert>
+        <c-col md="12" class="pt-3">
+            <span>Reference ID</span><br>
+            <strong>{{request.referenceId}}</strong>
+        </c-col>
+        <!-- <c-col md="12" class="pt-3">
+            <span>Main Radar</span><br>
+            <strong>{{request.radar}}</strong>
+        </c-col> -->
+    </c-modal-body>
+    <c-modal-footer>
+        <button [cModalToggle]="verticallyCenteredModal.id" cButton color="secondary" (click)="toggleModal()">
+        Close
+        </button>
+    </c-modal-footer>
+</c-modal>

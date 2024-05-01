@@ -1,0 +1,15 @@
+<router-outlet></router-outlet>
+
+<c-toaster [placement]="placement" class="p-3 d-print-none" position="fixed">
+    <c-toast
+      *ngFor="let toast of toasts"
+      [color]="toast.type"
+      [visible]="true">
+      <c-toast-header *ngIf="toast.subject">
+        <strong class="me-auto">{{toast.subject}}</strong>
+      </c-toast-header>
+      <c-toast-body *ngIf="toast.message">
+        <p>{{toast.message}}</p>
+      </c-toast-body>
+    </c-toast>
+</c-toaster>

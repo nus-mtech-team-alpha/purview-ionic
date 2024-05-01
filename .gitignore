@@ -1,0 +1,70 @@
+HELP.md
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+
+### STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Dynamic ###
+*.mv.db
+*.trace.db
+.DS_Store
+
+### Angular ignore ###
+# Node.js dependencies
+node_modules/
+
+# Compiled output
+dist/
+tmp/
+out-tsc/
+
+# Environment variables
+.env
+.env.*
+
+# Log files
+*.log
+
+# Cache and build files
+.cache/
+.npm/
+.angular
+bower_components/
+
+# IDE configuration files
+.idea/
+
+# Other project-specific files or directories to ignore
+*.swp
+Thumbs.db
+
+# Angular Builder
+web/node

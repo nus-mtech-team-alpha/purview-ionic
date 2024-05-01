@@ -1,0 +1,65 @@
+<c-row>
+    <div class="mb-1">
+        <div class="border-start border-start-4 border-start-info py-1 px-3 mb-3">
+            <div class="text-medium-emphasis small">Total</div>
+            <div class="fs-5 fw-semibold">{{ actions.length }}</div>
+        </div>
+    </div>
+</c-row>
+
+<c-row>
+    <c-col xs="12">        
+        <c-card class="mb-3" *ngFor="let action of actions">
+            <c-card-header color="secondary" class="d-flex justify-content-between align-items-center">
+                <div class="text-nowrap {{action.toIgnore ? 'text-decoration-line-through':''}}">
+                    <a [routerLink]="[action.product ? '/admin/product-support' : '/admin/feature-support', action.site?.code, action.product ? action.product?.code : action.feature?.name]" class="text-info fw-bold text-decoration-none">{{action.site?.code}} {{action.product?.code}}{{action.feature?.name}}</a> Support
+                    <br>
+                    <strong>{{action.app.internalName}}</strong>&nbsp;<span class="text-{{action.environment == 'PRODUCTION' ? 'success':'warning'}}"><small>{{action.environment == 'PRODUCTION' ? 'MP':'STAGING'}}</small></span>
+                </div>
+                <div class="d-flex flex-row">
+                    <c-dropdown
+                        placement="bottom-start"
+                        variant="btn-group">
+                        <button *ngIf="!action.verified" color="dark" variant="outline" size="sm" cButton (click)="approveAction(action)">APPROVE</button>
+                        <button
+                            *ngIf="action.verified"
+                            [cTooltip]="tooltipContent"
+                            cButton
+                            cTooltipPlacement="bottom"
+                            cTooltipTrigger="click"
+                            class="text-nowrap"
+                            color="info"
+                            variant="outline"
+                            size="sm">
+                            APPROVED <svg cIcon name="cilCheckCircle" size="sm"></svg>
+                            <ng-template #tooltipContent>
+                                By <span cTextColor="success">{{action.verifiedBy}}</span> on <i cTextColor="warning">{{action.verifiedDate | date:'medium'}}</i>
+                            </ng-template>
+                        </button>
+                        <button color="{{action.verified ? 'info':'dark'}}" variant="outline" size="sm" cButton cDropdownToggle split>
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul cDropdownMenu>
+                            <li><button cDropdownItem *ngIf="!action.toIgnore" (click)="setActionIgnore(action)">Set to Ignore</button></li>
+                            <li><button cDropdownItem *ngIf="action.toIgnore" (click)="setActionIgnore(action)">Set to Needed</button></li>
+                        </ul>
+                    </c-dropdown>
+                </div>
+            </c-card-header>
+            <c-card-body class="p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let task of action.tasks">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold {{action.toIgnore ? 'text-decoration-line-through':''}}">
+                                <span class="text-nowrap {{action.toIgnore ? 'text-decoration-line-through':''}}">{{task.appConfig.name}}</span>
+                            </div>
+                            <div>
+                                <span class="{{action.toIgnore ? 'text-decoration-line-through':''}}">{{task.appConfigSetValue}}</span>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>

@@ -1,0 +1,301 @@
+<div class="d-none d-print-block">
+    <div>
+        <table [striped]="false" cTable class="d-print-table" small>
+            <tbody>
+                <tr class="d-print-table-row">
+                    <td class="text-nowrap d-print-table-cell" colspan="2"><strong>{{request.site?.code}}_{{request.product ? request.product?.code : request.feature?.name}}</strong> Support Details &nbsp;<strong>v{{request.version}}</strong></td>
+                </tr>
+                <tr class="d-print-table-row">
+                    <td class="text-nowrap d-print-table-cell">SITE</td>
+                    <td class="text-nowrap d-print-table-cell">{{ request.site?.code }}</td>
+                </tr>
+                <tr class="d-print-table-row">
+                    <td class="text-nowrap d-print-table-cell">{{request.product ? 'PRODUCT' : 'FEATURE'}}</td>
+                    <td class="text-nowrap d-print-table-cell">{{request.product ? request.product?.code : request.feature?.name}}</td>
+                </tr>
+                <tr class="d-print-table-row">
+                    <td class="text-nowrap d-print-table-cell">NEED-BY-DATE</td>
+                    <td class="text-nowrap d-print-table-cell">{{request.needByDate | date:'mediumDate'}}</td>
+                </tr>
+                <tr class="d-print-table-row spacer">
+                    <td colspan="2">&nbsp;</td>
+                </tr>
+
+                <tr class="d-print-table-row {{pr.type=='footer' ? 'spacer':''}}" *ngFor="let pr of printRecords">
+                    <td class="text-nowrap d-print-table-cell {{pr.action?.toIgnore ? 'text-decoration-line-through':''}}" *ngIf="pr.type == 'header'" colspan="2"><strong>{{pr.title}}</strong></td>
+                    <td class="text-nowrap d-print-table-cell {{pr.action?.toIgnore ? 'text-decoration-line-through':''}}" *ngIf="pr.type == 'content-task'">{{pr.title}}</td>
+                    <td class="text-nowrap d-print-table-cell" *ngIf="pr.type == 'content-approved' && !pr.action.toIgnore">{{pr.title}}</td>
+
+                    <td class="text-nowrap d-print-table-cell {{pr.action?.toIgnore ? 'text-decoration-line-through':''}}" *ngIf="pr.type == 'content-task'"><svg cIcon name="cilCheck" size="sm" *ngIf="pr.task.status == 'COMPLETED'"></svg> {{pr.task.appConfigSetValue}}</td>
+                    <td class="text-nowrap d-print-table-cell" *ngIf="pr.type == 'content-approved' && !pr.action.toIgnore">{{pr.action.verifiedBy}} - {{pr.action.verifiedDate | date:'medium'}}</td>
+                    <td colspan="2" *ngIf="pr.type == 'footer'">&nbsp;</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<c-row class="d-print-none" *ngIf="request?.site">
+    <c-col xs="12">
+        <c-card class="mb-4" cBorder="dark">
+            <c-card-header class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{request.site?.code}}_{{request.product ? request.product?.code : request.feature?.name}}</strong>&nbsp;<small>Details</small>&nbsp;<strong>v{{request.version}}</strong>
+                </div>
+                <div>
+                    <button cButton size="sm" color="light" (click)="printDetails()" class="text-nowrap">
+                        <small>PDF</small>
+                    </button>
+                    <button cButton size="sm" color="light" (click)="exportJson()" class="text-nowrap">
+                        <small>JSON</small>
+                    </button>
+                </div>
+            </c-card-header>
+            <c-card-body>
+                <table [striped]="true" cTable class="p-3" small>
+                    <tbody>
+                        <tr>
+                            <td class="text-nowrap">STATUS</td>
+                            <td>{{request.status}}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap">REQUESTOR</td>
+                            <td>{{request.requestor?.firstName}} {{request.requestor?.lastName}}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap">SITE</td>
+                            <td>
+                                <a [routerLink]="['/admin/site-details',request.site?.code]" class="text-decoration-none cursor-pointer">{{request.site?.code}}</a>
+                            </td>
+                        </tr>
+                        <tr *ngIf="request.product">
+                            <td class="text-nowrap">PRODUCT</td>
+                            <td>
+                                <a [routerLink]="['/admin/product-details',request.product?.code]" class="text-decoration-none cursor-pointer">{{request.product?.code}}</a> - <strong>{{request.product?.status}}</strong>
+                            </td>
+                        </tr>
+                        <tr *ngIf="request.feature">
+                            <td class="text-nowrap">FEATURE</td>
+                            <td>
+                                <a [routerLink]="['/admin/feature-details',request.feature?.name]" class="text-decoration-none cursor-pointer">{{request.feature?.name}}</a>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="text-nowrap align-middle">NEED-BY-DATE</td>
+                            <td>
+                                <div class="input-group text-nowrap">
+                                    <input
+                                        cFormControl
+                                        placeholder="yyyy-mm-dd"
+                                        name="dp"
+                                        ngbDatepicker
+                                        [(ngModel)]="request.needByDateParsed"
+                                        #d="ngbDatepicker"
+                                        (click)="d.toggle()"
+                                        (ngModelChange)="saveRequest()"
+                                    />
+                                    <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
+                                </div>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </c-card-body>
+        </c-card>
+
+       <c-card class="mb-4" cBorder="dark">
+            <c-card-header class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>Summary</strong>
+                </div>
+                <button cButton size="sm" color="light" (click)="exportVips()" class="text-nowrap" *ngIf="request.product">
+                    <small>EXPORT VIPS</small>&nbsp;
+                    <fa-icon [icon]="faFile"></fa-icon>
+                </button>
+            </c-card-header>
+            <c-card-body>
+                <table [striped]="false" cTable class="p-3" small>
+                    <thead>
+                        <tr>
+                            <th>App</th>
+                            <th></th>
+                            <th>Approver</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let action of request.actions">
+                            <td class="text-nowrap {{action.toIgnore ? 'text-decoration-line-through':''}}">{{action.app.internalName}}</td>
+                            <td class="text-nowrap {{action.toIgnore ? 'text-decoration-line-through':''}}">{{ action.environment == 'PRODUCTION' ? 'MP':'STG' }} <svg cIcon name="cilCheck" size="sm" *ngIf="action.status == 'COMPLETED'" class="text-success"></svg></td>
+                            <td class="text-wrap {{action.toIgnore ? 'text-decoration-line-through':''}}" *ngIf="action.verified">{{action.verifier?.firstName}} {{action.verifier?.lastName}}</td>
+                            <td class="text-wrap {{action.toIgnore ? 'text-decoration-line-through':''}}" *ngIf="!action.verified">{{action.app.sre.firstName}} {{action.app.sre.lastName}}</td>
+                            <td class="text-nowrap"><fa-icon [icon]="faLike" *ngIf="action.verified" class="text-success"></fa-icon></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </c-card-body>
+        </c-card>
+        
+        <c-form-check [switch]="true" *ngIf="isSre" class="mb-2">
+            <input cFormCheckInput type="checkbox" [(ngModel)]="showSreOwnAppsOnly" [ngModelOptions]="{standalone:true}" (change)="updateFilterAppsFlag()" />
+            <label cFormCheckLabel class="fw-bold fst-italic">Filter my apps</label>
+        </c-form-check>
+        <c-card class="mb-2" *ngFor="let action of filteredActions()">
+            <c-card-header color="secondary" class="d-flex justify-content-between align-items-center">
+                <div class="text-nowrap {{action.toIgnore ? 'text-decoration-line-through':''}}">
+                    <strong>{{action.app.internalName}}</strong>&nbsp;<span class="text-{{action.environment == 'PRODUCTION' ? 'success':'warning'}}"><small>{{action.environment == 'PRODUCTION' ? 'MP':'STAGING'}}</small></span>
+                </div>
+                <div class="d-flex flex-row">
+                    <label cFormCheckLabel *ngIf="!action.verified && !isSre && !action.toIgnore">For Approval</label>
+                    <button
+                        *ngIf="action.verified && !isSre"
+                        [cTooltip]="tooltipContent"
+                        cButton
+                        cTooltipPlacement="bottom"
+                        cTooltipTrigger="click"
+                        class="me-1 text-nowrap"
+                        color="info"
+                        variant="outline"
+                        size="sm">
+                        APPROVED <svg cIcon name="cilCheckCircle" size="sm"></svg>
+                        <ng-template #tooltipContent>
+                            By <span cTextColor="success">{{action.verifiedBy}}</span> on <i cTextColor="warning">{{action.verifiedDate | date:'medium'}}</i>
+                        </ng-template>
+                    </button>
+                    <c-dropdown
+                        placement="bottom-start"
+                        variant="btn-group"
+                        *ngIf="isSre">
+                        <button *ngIf="!action.verified" color="dark" variant="outline" size="sm" cButton (click)="approveAction(action)">APPROVE</button>
+                        <button
+                            *ngIf="action.verified"
+                            [cTooltip]="tooltipContent"
+                            cButton
+                            cTooltipPlacement="bottom"
+                            class="text-nowrap"
+                            color="info"
+                            variant="outline"
+                            size="sm">
+                            APPROVED <svg cIcon name="cilCheckCircle" size="sm"></svg>
+                            <ng-template #tooltipContent>
+                                By <span cTextColor="success">{{action.verifiedBy | replace : '@apple.com' : ''}}</span> on <i cTextColor="warning">{{action.verifiedDate | date:'shortDate'}}</i>
+                            </ng-template>
+                        </button>
+                        <button color="{{action.verified ? 'info':'dark'}}" variant="outline" size="sm" cButton cDropdownToggle split>
+                            <span class="visually-hidden">Toggle Dropdown</span>
+                        </button>
+                        <ul cDropdownMenu>
+                            <li><button cDropdownItem *ngIf="!action.toIgnore" (click)="setActionIgnore(action)">Set to Ignore</button></li>
+                            <li><button cDropdownItem *ngIf="action.toIgnore" (click)="setActionIgnore(action)">Set to Needed</button></li>
+                        </ul>
+                    </c-dropdown>
+                </div>
+            </c-card-header>
+            <c-card-body class="p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let task of action.tasks">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold {{action.toIgnore ? 'text-decoration-line-through':''}}">
+                                <input cFormCheckInput [checked]="task.status == 'COMPLETED'" (change)="updateTask($event, action, task)" [disabled]="!action.verified" *ngIf="!action.toIgnore" class="me-1"/>
+                                <span class="text-nowrap {{action.toIgnore ? 'text-decoration-line-through':''}}" [cTooltip]="tooltipTask" cTooltipPlacement="bottom">{{task.appConfig.name}}</span>
+                                <ng-template #tooltipTask>
+                                    <span class="text-start text-nowrap d-inline-block">
+                                        <span cTextColor="info">Created:</span> {{task.createdBy | replace : '@apple.com' : ''}} <i>{{task.createdDate | date:'shortDate'}}</i><br/>
+                                        <span cTextColor="warning">Updated:</span> {{task.updatedBy | replace : '@apple.com' : ''}} <i>{{task.updatedDate | date:'shortDate'}}</i>
+                                    </span>
+                                </ng-template>
+                            </div>
+                            <div *ngIf="task.status == 'COMPLETED' || !isSre || action.toIgnore">
+                                <span class="{{action.toIgnore ? 'text-decoration-line-through':''}}">{{task.selectedValue}}</span>
+                            </div>
+                            <div *ngIf="task.status != 'COMPLETED' && isSre && !action.toIgnore" class="my-1">
+                                <div class="d-flex justify-content-start">
+                                    <select *ngIf="!task.appConfig.multi" cSelect sizing="sm" [(ngModel)]="task.selectedValue" (change)="incrementAndSaveRequest()" required>
+                                        <option *ngFor="let value of task.appConfig.values" [ngValue]="value.val">{{ value.val }} *{{ value.rolloutPhaseEnum.shortForm }}</option>
+                                    </select>
+                                    <a class="text-decoration-none cursor-pointer p-2" title="Retrieve actual latest version">
+                                        <fa-icon [icon]="faRefresh" (click)="refreshConfig(task, task.appConfig)" *ngIf="task.status !== 'COMPLETED' && task.appConfig.name == 'CONFIG-VERSION'"></fa-icon>
+                                    </a>
+                                </div>
+                                <tag-input *ngIf="task.appConfig.multi" [(ngModel)]="task.selectedValue" [ngModelOptions]="{standalone:true}" [onlyFromAutocomplete]="false" theme='minimal' 
+                                    placeholder="Multi-select items..." secondaryPlaceholder="Multi-select items..." [modelAsStrings]="true" (onAdd)="incrementAndSaveRequest()" (onRemove)="incrementAndSaveRequest()" (onSelect)="copyToClipboard($event)">
+                                    <tag-input-dropdown [showDropdownIfEmpty]="true" [autocompleteItems]="task.appConfig.valuesCsv">
+                                        <ng-template let-item="item">
+                                            {{ item.display }}
+                                        </ng-template>
+                                    </tag-input-dropdown>
+                                </tag-input>
+                            </div>
+                            <div *ngIf="task.minRequired && task.selectedValue != task.minRequired">
+                                <span class="fst-italic">
+                                    <small class="text-muted">Min Required: {{task.minRequired}}</small>
+                                </span>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start" *ngIf="!action.toIgnore">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                <span class="text-nowrap label-ref-id">CR IDs</span>
+                            </div>
+                            <div class="my-1">
+                                <tag-input [(ngModel)]="action.crNumbersCsv" [ngModelOptions]="{standalone:true}" [onlyFromAutocomplete]="false" [theme]="'bootstrap'"
+                                    placeholder="Multi-entry field..." secondaryPlaceholder="Multi-entry field..." [modelAsStrings]="true" 
+                                    [onAdding]="validateCrInput" (onAdd)="saveRequest()" (onRemove)="saveRequest()" (onSelect)="viewCr($event)">
+                                </tag-input>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start" *ngIf="!action.toIgnore">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                <span class="text-nowrap label-ref-id">Radar IDs</span>
+                            </div>
+                            <div class="my-1">
+                                <tag-input [(ngModel)]="action.radarsCsv" [ngModelOptions]="{standalone:true}" [onlyFromAutocomplete]="false" [theme]="'bootstrap'" 
+                                    placeholder="Multi-entry field..." secondaryPlaceholder="Multi-entry field..." [modelAsStrings]="true" 
+                                    [onAdding]="validateRadarInput" (onAdd)="saveRequest()" (onRemove)="saveRequest()" (onSelect)="viewRadar($event)">
+                                </tag-input>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>
+
+<c-modal id="configWarningModal" [visible]="configWarningVisible" [keyboard]="false" [backdrop]="false" alignment="center" size="lg">
+    <c-modal-header>
+        <h5 cModalTitle>Config Warning</h5>
+        <button (click)="cancelSaveDueToWarnings()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        <table [striped]="true" cTable class="p-3" small>
+            <thead>
+                <tr>
+                    <th>App</th>
+                    <th>Config</th>
+                    <th>Min Required</th>
+                    <th>Current</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let v of violatedPacs">
+                    <td>{{v.appName}}</td>
+                    <td>{{v.configName}}</td>
+                    <td>{{v.configValues}}</td>
+                    <td>{{v.selectedValues}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="cancelSaveDueToWarnings()" cButton color="secondary">
+        Cancel
+        </button>
+        <button (click)="proceedWithConfigChanges()" cButton color="primary">Proceed Anyway</button>
+    </c-modal-footer>
+</c-modal>
+
+<a [href]="targetLink" target="_blank" id="targetLinkTag" class="d-none"></a>

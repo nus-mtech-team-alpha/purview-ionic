@@ -1,0 +1,75 @@
+/* You can add global styles to this file, and also import other style files */
+// If you want to override variables do it here
+@import "variables";
+
+$enable-ltr: true;
+$enable-rtl: true;
+
+// Import styles with default layout.
+@import "@coreui/coreui/scss/coreui";
+
+// Import Chart.js custom tooltips styles
+@import "@coreui/chartjs/scss/coreui-chartjs";
+
+// perfect scrollbar theming for use with [perfectScrollbar] directive
+//@import '~perfect-scrollbar/css/perfect-scrollbar.css';
+
+@import "layout";
+
+// Some temp fixes
+@import "fixes";
+
+// Prism.js
+@import "examples";
+
+// If you want to add something do it here
+@import "custom";
+
+/* Importing Bootstrap SCSS file. */
+@import "bootstrap/scss/bootstrap";
+@import "bootstrap-icons/font/bootstrap-icons.css";
+
+@media print {
+    tr.spacer td {
+        border: none;
+    }
+    td {
+        font-size: x-small;
+    }
+}
+
+.force-wrap {
+    overflow-wrap: break-word;
+    -ms-word-break: break-all;
+    word-break: break-all;
+    word-break: break-word;
+    -webkit-hyphens: auto;
+    -moz-hyphens: auto;
+    -ms-hyphens: auto;
+    hyphens: auto;
+}
+.cursor-pointer {
+    cursor: pointer;
+}
+.card-header-button {
+    border: 1px solid #ced4da;
+    padding-top: 2px !important;
+    padding-bottom: 2px !important;
+}
+.card-header-button:hover {
+    border: 1px solid #a0a0a0;
+    background-color: #bdc5cf;
+}
+.card-body-app-config {
+    transition: all 1s ease-in-out;
+}
+.label-ref-id {
+    color: #6b0000;
+}
+tr.blurred-row td {
+    color: #939393 !important;
+}
+tr.near-date td {
+    color: #a90000 !important;
+    font-weight: bold;
+}

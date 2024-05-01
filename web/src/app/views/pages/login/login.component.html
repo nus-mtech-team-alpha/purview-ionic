@@ -1,0 +1,63 @@
+<div class="min-vh-100 d-flex flex-row align-items-center">
+  <c-container>
+    <c-row class="justify-content-center">
+      <c-col md="8">
+        <c-card-group>
+          <c-card class="bg-light p-4">
+            <c-card-body>
+              <form cForm>
+                <c-row>
+                  <img src="assets/img/brand/apple-jmet-purview.svg" [ngStyle]="{'width.%': 80}" alt=""/>
+                </c-row>
+                <h5>Login to your account</h5>
+                <c-input-group class="mb-3">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilUser"></svg>
+                  </span>
+                  <input 
+                    autoComplete="username" 
+                    cFormControl 
+                    placeholder="Username" 
+                    type="text" 
+                    [(ngModel)]="username" 
+                    [ngModelOptions]="{standalone:true}" 
+                    required/>
+                </c-input-group>
+                <c-input-group class="mb-4">
+                  <span cInputGroupText>
+                    <svg cIcon name="cilLockLocked"></svg>
+                  </span>
+                  <input
+                    autoComplete="current-password"
+                    cFormControl
+                    placeholder="Password"
+                    type="password"
+                    [(ngModel)]="password" 
+                    [ngModelOptions]="{standalone:true}"  
+                    required/>
+                </c-input-group>
+                <c-row>
+                  <c-col xs="6">
+                    <button cButton class="px-4" color="primary" type="submit" (click)="login()">
+                      Login
+                    </button>
+                  </c-col>
+                </c-row>
+              </form>
+            </c-card-body>
+          </c-card>
+          <c-card class="text-white bg-secondary py-5">
+            <c-card-body class="text-center">
+              <div>
+                <h2>Need access?</h2>
+                <p>
+                  Kindly send email to <a href="mailto:jmet-sre-all@group.apple.com" target="_blank" class="text-decoration-none">JMET-SRE</a> or create radar under JMET SRE | All component
+                </p>
+              </div>
+            </c-card-body>
+          </c-card>
+        </c-card-group>
+      </c-col>
+    </c-row>
+  </c-container>
+</div>

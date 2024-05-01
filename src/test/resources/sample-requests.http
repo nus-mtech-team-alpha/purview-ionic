@@ -1,0 +1,45 @@
+GET http://localhost:8080/api/persons
+GET http://localhost:8080/api/sites
+GET http://localhost:8080/api/products
+
+POST http://localhost:8080/api/actions
+content-type: application/json
+
+{
+    "title": "Test Action",
+    "category": "Test Category",
+    "description": "Test Description",
+    "radar": "Test Radar",
+    "status": "Test Status"
+}
+
+GET http://localhost:8080/api/actions
+
+PUT http://localhost:8080/api/actions/1
+content-type: application/json
+
+{
+    "id": "1",
+    "title": "Test Action Updated",
+    "category": "Test Category Updated",
+    "description": "Test Description Updated",
+    "radar": "Test Radar Updated",
+    "status": "Test Status Updated"
+}
+
+GET http://localhost:8080/api/actions/1
+
+DELETE http://localhost:8080/api/actions/1
+
+GET http://localhost:8080/api/actions
+
+GET http://localhost:8080/api/requests
+POST http://localhost:8080/api/requests
+content-type: application/json
+
+{
+    "description":"REQUEST-TEST",
+    "needByDate":"2023-07-01",
+    "siteId":1,
+    "productId":1
+}

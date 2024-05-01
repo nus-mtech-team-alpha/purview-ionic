@@ -1,0 +1,199 @@
+<c-row>
+    <c-col xs="12">
+        <c-card class="mb-4">
+            <c-card-header class="d-flex justify-content-between align-items-center">
+                <strong>Site Details</strong>
+                <button type="button" class="btn btn-xs btn-default card-header-button" (click)="addSite()" *ngIf="!siteCode">Save</button>
+            </c-card-header>
+            <c-card-body>
+                <form cForm class="row g-3">
+                    <c-col md="12">
+                        <label cLabel for="">*Code</label>
+                        <input cFormControl type="text" [(ngModel)]="site.code" [ngModelOptions]="{standalone:true}" [disabled]="siteCode != ''">
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Company</label>
+                        <input cFormControl type="text" [(ngModel)]="site.company" [ngModelOptions]="{standalone:true}" (blur)="saveSite()" required>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Country</label>
+                        <input cFormControl type="text" [(ngModel)]="site.country" [ngModelOptions]="{standalone:true}" (blur)="saveSite()" required>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*City</label>
+                        <input cFormControl type="text" [(ngModel)]="site.city" [ngModelOptions]="{standalone:true}" (blur)="saveSite()" required>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Category</label>
+                        <select cSelect [(ngModel)]="site.category" [ngModelOptions]="{standalone:true}" (change)="saveSite()" required>
+                            <option value="CM">CM</option>
+                            <option value="MI">MI</option>
+                            <option value="DC">DC</option>
+                        </select>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Infrastructure</label>
+                        <select cSelect [(ngModel)]="site.infra" [ngModelOptions]="{standalone:true}" (change)="saveSite()" required>
+                            <option value="LOCAL">LOCAL</option>
+                            <option value="CLOUD">CLOUD</option>
+                            <option value="JCS">JCS</option>
+                            <option value="DC">DC</option>
+                        </select>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Status</label>
+                        <select cSelect [(ngModel)]="site.status" [ngModelOptions]="{standalone:true}" (change)="saveSite()" required>
+                            <option value="ACTIVE">ACTIVE</option>
+                            <option value="INACTIVE">INACTIVE</option>
+                        </select>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Product Categories</label>
+                        <tag-input [(ngModel)]="productCategories" [ngModelOptions]="{standalone:true}" [onlyFromAutocomplete]="true" theme='minimal' 
+                            placeholder="Add Category" secondaryPlaceholder="Add Category" [modelAsStrings]="true" (onAdd)="saveSite()" (onRemove)="saveSite()">
+                            <tag-input-dropdown [showDropdownIfEmpty]="true" [autocompleteItems]="['IPHONE','IPAD','MAC','WATCH','AUDIO','TV','ACCESSORIES']">
+                                <ng-template let-item="item">
+                                    {{ item.display }}
+                                </ng-template>
+                            </tag-input-dropdown>
+                        </tag-input>
+                    </c-col>
+                </form>
+            </c-card-body>
+        </c-card>
+
+        <c-card class="mb-4" *ngIf="siteCode">
+            <c-card-header color="secondary">
+                <strong>{{site.code}}</strong>&nbsp;Products
+            </c-card-header>
+            <c-card-body>
+                <angular2-smart-table 
+                    [settings]="settings" 
+                    [source]="siteProducts"
+                    ></angular2-smart-table>
+            </c-card-body>
+        </c-card>
+
+        <c-card class="mb-4" *ngIf="siteCode">
+            <c-card-header class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{site.code}}</strong>&nbsp;<small>Staging</small>
+                </div>
+                <button cButton size="sm" color="light" *ngIf="stagingSiteApps.length > 0" (click)="exportAggregatedVips(site.code)" class="text-nowrap">
+                    <small>EXPORT</small>&nbsp;
+                    <fa-icon [icon]="faFile"></fa-icon>
+                </button>
+            </c-card-header>
+            <c-card-body>
+                <form cForm class="row g-3">
+                    <c-input-group class="mb-3">
+                        <span cInputGroupText>Add</span>
+                        <select cSelect [(ngModel)]="appToAddStaging" [ngModelOptions]="{standalone:true}" (change)="addApp(true)" required>
+                            <option value="">Select...</option>
+                            <option *ngFor="let app of apps" [ngValue]="app">{{ app.internalName }}</option>
+                        </select>
+                    </c-input-group>
+                    <table cTable small *ngIf="stagingSiteApps.length > 0">
+                        <thead>
+                            <tr>
+                                <th>App</th>
+                                <th>Staging Line-facing VIP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let siteApp of stagingSiteApps">
+                                <td class="text-nowrap align-middle">{{siteApp.app ? siteApp.app?.internalName : siteApp.appNameToAdd}}</td>
+                                <td>
+                                    <input cFormControl type="text" [(ngModel)]="siteApp.vip" [ngModelOptions]="{standalone:true}" (blur)="saveSiteApps()" required>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </c-card-body>
+        </c-card>
+
+        <c-card class="mb-4" *ngIf="siteCode">
+            <c-card-header class="d-flex justify-content-between align-items-center">
+                <div>
+                    <strong>{{site.code}}</strong>&nbsp;<small>Production</small>
+                </div>
+                <button cButton size="sm" color="light" *ngIf="productionSiteApps.length > 0" (click)="exportVips(site.code, 'MP', productionSiteApps)" class="text-nowrap">
+                    <small>EXPORT</small>&nbsp;
+                    <fa-icon [icon]="faFile"></fa-icon>
+                </button>
+            </c-card-header>
+            <c-card-body>
+                <form cForm class="row g-3">
+                    <c-input-group class="mb-3">
+                        <span cInputGroupText>Add</span>
+                        <select cSelect [(ngModel)]="appToAddProduction" [ngModelOptions]="{standalone:true}" (change)="addApp(false)" required>
+                            <option value="">Select...</option>
+                            <option *ngFor="let app of apps" [ngValue]="app">{{ app.internalName }}</option>
+                        </select>
+                    </c-input-group>
+                    <table cTable small *ngIf="productionSiteApps.length > 0">
+                        <thead>
+                            <tr>
+                                <th>App</th>
+                                <th>Production Line-facing VIP</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let siteApp of productionSiteApps">
+                                <td class="text-nowrap align-middle">{{siteApp.app ? siteApp.app?.internalName : siteApp.appNameToAdd}}</td>
+                                <td>
+                                    <input cFormControl type="text" [(ngModel)]="siteApp.vip" [ngModelOptions]="{standalone:true}" (blur)="saveSiteApps()" required>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </form>
+            </c-card-body>
+        </c-card>
+
+        <c-card class="mb-2" *ngFor="let siteApp of stagingSiteApps">
+            <c-card-header color="secondary" class="d-flex align-items-center">
+                <strong>{{siteApp.app.internalName}}</strong>&nbsp;<span class="text-warning"><small>{{siteApp.environment}}</small></span>
+            </c-card-header>
+            <c-card-body class="p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let appConfig of siteApp.siteAppConfigs">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                <span class="text-nowrap">{{appConfig.name}}</span>
+                            </div>
+                            <div class="my-1">
+                                <div>
+                                    <span class="text-nowrap">{{appConfig.val}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </c-card-body>
+        </c-card>
+
+        <c-card class="mb-2" *ngFor="let siteApp of productionSiteApps">
+            <c-card-header color="secondary" class="d-flex align-items-center">
+                <strong>{{siteApp.app.internalName}}</strong>&nbsp;latest&nbsp;<span class="text-success"><small>{{siteApp.environment}}</small></span>
+            </c-card-header>
+            <c-card-body class="p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let appConfig of siteApp.siteAppConfigs">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                <span class="text-nowrap">{{appConfig.name}}</span>
+                            </div>
+                            <div class="my-1">
+                                <div>
+                                    <span class="text-nowrap">{{appConfig.val}}</span>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>

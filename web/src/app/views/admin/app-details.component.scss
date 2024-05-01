@@ -1,0 +1,21 @@
+.label-value:hover {
+    cursor: initial;
+    background-color: #9DA5B1;
+}
+.config-header {
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
+}
+.config-delete-badge {
+    display: none;
+    cursor: pointer;
+}
+button.label-value {
+    &:hover {
+        .config-delete-badge {
+            display: inline-block !important;
+        }
+        margin-right: 1rem !important;
+        transition: all 400ms ease-in-out;
+    }
+}

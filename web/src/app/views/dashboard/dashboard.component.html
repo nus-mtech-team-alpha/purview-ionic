@@ -1,0 +1,44 @@
+<c-row>
+  <c-col xs>
+      <c-card class="mb-4">
+      <c-card-header>My Requests</c-card-header>
+      <c-card-body>
+          <c-row>
+              <c-col md="6" xl="6" xs="12">
+                  <c-row>
+                      <c-col sm="6">
+                          <div class="border-start border-start-4 border-start-info py-1 px-3 mb-3">
+                              <div class="text-medium-emphasis small">Open</div>
+                              <div class="fs-5 fw-semibold">{{ openRequestsCount }}</div>
+                          </div>
+                      </c-col>
+                      <c-col sm="6">
+                          <div class="border-start border-start-4 border-start-warning py-1 px-3 mb-3">
+                              <div class="text-medium-emphasis small">In-Progress</div>
+                              <div class="fs-5 fw-semibold">{{ inprogressRequestsCount }}</div>
+                          </div>
+                      </c-col>
+                  </c-row>
+              </c-col>
+
+              <c-col md="6" xl="6" xs="12">
+                  <c-row>
+                      <c-col sm="6">
+                          <div class="border-start border-start-4 border-start-danger py-1 px-3 mb-3">
+                            <div class="text-medium-emphasis small">Rejected</div>
+                            <div class="fs-5 fw-semibold">{{ rejectedRequestsCount }}</div>
+                          </div>
+                      </c-col>
+                      <c-col sm="6">
+                          <div class="border-start border-start-4 border-start-success py-1 px-3 mb-3">
+                            <div class="text-medium-emphasis small">Completed</div>
+                            <div class="fs-5 fw-semibold">{{ completedRequestsCount }}</div>
+                          </div>
+                      </c-col>
+                  </c-row>
+              </c-col>
+          </c-row>
+      </c-card-body>
+      </c-card>
+  </c-col>
+</c-row>

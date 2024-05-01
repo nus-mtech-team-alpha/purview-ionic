@@ -1,0 +1,4 @@
+<a [routerLink]="data.routeInfo" class="text-decoration-none">
+    <fa-icon [icon]="faEye" *ngIf="!data.identifier"></fa-icon>
+    <span *ngIf="data.identifier">{{data.identifier}}</span>
+</a>

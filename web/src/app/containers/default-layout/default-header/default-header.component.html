@@ -1,0 +1,65 @@
+<ng-container>
+  <c-container [fluid]="true">
+    <button
+      toggle="visible"
+      cHeaderToggler
+      [cSidebarToggle]="sidebarId"
+      class="ps-1"
+    >
+      <svg cIcon
+        name="cilMenu"
+        size="lg"
+      ></svg>
+    </button>
+    <c-header-nav class="me-auto">
+      <c-nav-item>
+        <a cNavLink routerLink="/dashboard" routerLinkActive="active">
+          <strong>Purview</strong> | <small>Home</small>
+        </a>
+      </c-nav-item>
+    </c-header-nav>
+
+    <c-header-nav class="ms-3">
+      <ng-container *ngTemplateOutlet="userDropdown"></ng-container>
+    </c-header-nav>
+
+  </c-container>
+  <c-header-divider></c-header-divider>
+  <c-container [fluid]="true">
+    <c-breadcrumb-router class="ms-2"></c-breadcrumb-router>
+  </c-container>
+</ng-container>
+
+<ng-template #userDropdown>
+  <c-dropdown alignment="end" variant="nav-item">
+    <button
+      cButton
+      color=""
+      [caret]="false"
+      cDropdownToggle
+      class="py-0"
+    >
+      <c-avatar
+        color="secondary"
+        textColor="black"
+        size="lg"
+        status="success"
+      >{{currentUser.firstName | uppercase | slice:0:1}}{{currentUser.lastName | uppercase | slice:0:1}}
+      </c-avatar>
+    </button>
+    <ul cDropdownMenu class="pt-0 pr-5 w-auto">
+      <li>
+        <h6 cDropdownHeader class="bg-light fw-semibold py-2">{{currentUser.firstName}} {{currentUser.lastName}}</h6>
+      </li>
+      <li *ngFor="let role of currentUser.roles">
+        <a cDropdownItemPlain class="text-decoration-none"><small>{{ role.code }}</small></a>
+      </li>
+      <li><hr cDropdownDivider></li>
+      <li>
+        <a cDropdownItemPlain class="text-decoration-none cursor-pointer" (click)="setLightMode()" *ngIf="darkMode">Light Mode <fa-icon [icon]="faSun"></fa-icon></a>
+        <a cDropdownItemPlain class="text-decoration-none cursor-pointer" (click)="setDarkMode()" *ngIf="!darkMode">Dark Mode <fa-icon [icon]="faMoon"></fa-icon></a>
+      </li>
+    </ul>
+  </c-dropdown>
+</ng-template>
+

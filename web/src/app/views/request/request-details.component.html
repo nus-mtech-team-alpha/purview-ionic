@@ -1,0 +1,64 @@
+<c-row>
+    <c-col xs="12">
+        <c-card class="mb-4">
+            <c-card-header>
+                <strong>{{request.referenceId}}</strong>
+            </c-card-header>
+            <c-card-body>
+                <table [striped]="true" cTable class="p-3">
+                    <tbody>
+                        <tr>
+                            <td>STATUS</td>
+                            <td>{{request.status}}</td>
+                        </tr>
+                        <tr>
+                            <td>SITE</td>
+                            <td>{{request.site?.code}}</td>
+                        </tr>
+                        <tr>
+                            <td>PRODUCT</td>
+                            <td>{{request.product?.code}}</td>
+                        </tr>
+                        <tr>
+                            <td>NEED-BY-DATE</td>
+                            <td>{{request.needByDate}}</td>
+                        </tr>
+                    </tbody>
+                </table>
+                <c-col xs="12" class="pt-3">
+                    <div class="container">
+                        <div class="step {{action.status == 'OPEN' ? '' : action.status}}" *ngFor="let action of request.actions">
+                            <div class="v-stepper">
+                                <div class="circle"></div>
+                                <div class="line"></div>
+                            </div>
+                            <div class="content">{{ action.app.externalName }}</div>
+                        </div>
+                    </div>
+                </c-col>
+            </c-card-body>
+        </c-card>
+
+        <c-card class="mb-4" *ngIf="request.status == 'COMPLETED'">
+            <c-card-header>
+                <strong>Application VIPs</strong>
+            </c-card-header>
+            <c-card-body>
+                <table [striped]="true" cTable>
+                    <thead>
+                        <tr>
+                            <th>Service</th>
+                            <th>VIP</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let siteApp of siteApps">
+                            <td>{{ siteApp.app.externalName }}</td>
+                            <td>{{ siteApp.vip }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>

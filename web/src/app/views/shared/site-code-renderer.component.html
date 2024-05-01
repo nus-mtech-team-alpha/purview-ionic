@@ -1,0 +1,7 @@
+<div class="text-nowrap">
+    <a [routerLink]="[data.link, data.identifier]" class="text-decoration-none">{{data.identifier}}</a>&nbsp;&nbsp;
+    <svg cIcon [name]="iconMap[category]" size="sm" *ngFor="let category of categories" style="padding-right: 2px;"></svg>
+    <svg *ngIf="isMiSite" xmlns="http://www.w3.org/2000/svg" width="100" height="100" pointer-events="none" role="img"
+        class="icon icon-sm"><text x="50%" y="55%" dominant-baseline="middle" text-anchor="middle" font-size="10"
+            fill="black" font-family="Arial, sans-serif">MI</text></svg>
+</div>

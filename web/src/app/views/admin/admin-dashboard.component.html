@@ -1,0 +1,89 @@
+<c-row>
+    <c-col xs>
+        <c-card class="mb-4">
+            <c-card-header>Statistics</c-card-header>
+            <c-card-body>
+                <c-row>
+                    <c-col md="6" xl="6" xs="12">
+                        <c-row>
+                            <c-col sm="6">
+                                <div class="border-start border-start-4 border-start-info py-1 px-3 mb-3">
+                                    <div class="text-medium-emphasis small">Active Requests</div>
+                                    <div class="fs-5 fw-semibold">{{ activeRequestsCount }}</div>
+                                </div>
+                            </c-col>
+                            <c-col sm="6">
+                                <div class="border-start border-start-4 border-start-default py-1 px-3 mb-3">
+                                    <div class="text-medium-emphasis small">Active Sites</div>
+                                    <div class="fs-5 fw-semibold">{{ activeSitesCount }}</div>
+                                </div>
+                            </c-col>
+                        </c-row>
+                    </c-col>
+
+                    <c-col md="6" xl="6" xs="12">
+                        <c-row>
+                            <c-col sm="6">
+                                <div class="border-start border-start-4 border-start-warning py-1 px-3 mb-3">
+                                    <div class="text-medium-emphasis small">NPI Products</div>
+                                    <div class="fs-5 fw-semibold">{{ activeNpiProductsCount }}</div>
+                                </div>
+                            </c-col>
+                            <c-col sm="6">
+                                <div class="border-start border-start-4 border-start-success py-1 px-3 mb-3">
+                                    <div class="text-medium-emphasis small">MP Products</div>
+                                    <div class="fs-5 fw-semibold">{{ activeMpProductsCount }}</div>
+                                </div>
+                            </c-col>
+                        </c-row>
+                    </c-col>
+                </c-row>
+            </c-card-body>
+        </c-card>
+
+        <c-card class="mb-4">
+            <c-card-header>Site-Product Matrix</c-card-header>
+            <c-card-body>
+                <table [striped]="true" cTable small>
+                    <thead>
+                        <tr *ngIf="!mobile">
+                            <th scope="col" *ngFor="let category of productCategories" class="text-center">
+                                {{category !== 'SITE' ? category : ''}}
+                            </th>
+                        </tr>
+                        <tr>
+                            <th scope="col" *ngFor="let category of productCategories" class="text-center">
+                                <svg cIcon [name]="iconMap[category]" size="lg"></svg>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr *ngFor="let row of rows">
+                            <td *ngFor="let col of productCategories" class="text-center">
+                                <span *ngIf="col === 'SITE'">
+                                    <a [routerLink]="['/admin/site-details', row[col]]" class="text-decoration-none">{{row[col]}}</a>
+                                </span>
+                                <span role="button" class="fw-bold" *ngIf="col !== 'SITE' && row[col].length > 0" 
+                                    [cPopover]="popoverProducts" 
+                                    cPopoverPlacement="right" 
+                                    [cPopoverTrigger]="'hover'">
+                                    {{row[col].length}}
+                                    <ng-template #popoverProducts>
+                                        <h3 class="popover-header">
+                                          {{row['SITE']}} {{col}} Product{{row[col].length > 1 ? 's' : ''}}
+                                        </h3>
+                                        <div class="popover-body">
+                                          <ul>
+                                            <li *ngFor="let product of row[col]">{{product.code}} ({{product.status}})</li>
+                                          </ul>
+                                        </div>
+                                    </ng-template>
+                                </span>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>

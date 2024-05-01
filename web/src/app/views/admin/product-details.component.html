@@ -1,0 +1,201 @@
+<c-row>
+    <c-col xs="12">
+        <c-card class="mb-4">
+            <c-card-header class="d-flex justify-content-between align-items-center">
+                <strong> Product Details</strong>
+                <button type="button" class="btn btn-xs btn-default card-header-button" (click)="addProduct()" *ngIf="productCode==''">Save</button>
+            </c-card-header>
+            <c-card-body>
+                <form cForm class="row g-3">
+                    <c-col md="12">
+                        <label cLabel for="">*Code</label>
+                        <input cFormControl type="text" [(ngModel)]="product.code" [ngModelOptions]="{standalone:true}" [disabled]="productCode != ''">
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Category</label>
+                        <select cSelect [(ngModel)]="product.category" [ngModelOptions]="{standalone:true}" (change)="saveProduct()" required>
+                            <optgroup label="FATP">
+                                <option value="IPHONE">IPHONE</option>
+                                <option value="IPAD">IPAD</option>
+                                <option value="MAC">MAC</option>
+                                <option value="WATCH">WATCH</option>
+                                <option value="AUDIO">AUDIO</option>
+                                <option value="TV">TV</option>
+                                <option value="ACCESSORIES">ACCESSORIES</option>
+                            </optgroup>
+                            <optgroup label="Others">
+                                <option value="MLB">MLB</option>
+                                <option value="SIP">SIP</option>
+                                <option value="Module">Module</option>
+                                <option value="Subassembly">Subassembly</option>
+                            </optgroup>
+                        </select>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Year Started</label>
+                        <input cFormControl type="number" [(ngModel)]="product.yearStarted" [ngModelOptions]="{standalone:true}" (blur)="saveProduct()" required>
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Build Status</label>
+                        <select cSelect [(ngModel)]="product.status" [ngModelOptions]="{standalone:true}" (change)="updateProductPhase()" required>
+                            <option value="NPI">NPI</option>
+                            <option value="MP">MP</option>
+                        </select>
+                    </c-col>
+                    <c-col md="12" *ngIf="this.productCode != ''">
+                        <label cLabel for="">*Features</label>
+                        <tag-input [(ngModel)]="features" [ngModelOptions]="{standalone:true}" [identifyBy]="'id'" [onlyFromAutocomplete]="true" theme='minimal' 
+                            placeholder="Add Feature" secondaryPlaceholder="Add Feature" (onAdd)="saveProductFeatures()" (onRemove)="deleteProductFeature($event)" (onSelect)="copyToClipboard($event)">
+                            <tag-input-dropdown [showDropdownIfEmpty]="true" [autocompleteItems]="possibleFeatures">
+                                <ng-template let-item="item">
+                                    {{ item.display }}
+                                </ng-template>
+                            </tag-input-dropdown>
+                        </tag-input>
+                    </c-col>
+                    <c-col md="12" *ngIf="this.productCode != ''">
+                        <label cLabel for="">*Sites</label>
+                        <tag-input [ngModel]="sites" [ngModelOptions]="{standalone:true}" [identifyBy]="'id'" [onlyFromAutocomplete]="true" theme='minimal' 
+                            placeholder="Add Site" secondaryPlaceholder="Add Site" (onAdd)="triggerAddSite($event)" (onRemove)="deleteProductSite($event)" (onSelect)="goToRequest($event)">
+                            <tag-input-dropdown [showDropdownIfEmpty]="true" [autocompleteItems]="possibleSites" [keepOpen]="false">
+                                <ng-template let-item="item">
+                                    {{ item.display }}
+                                </ng-template>
+                            </tag-input-dropdown>
+                        </tag-input>
+                    </c-col>
+                    <c-col md="12" *ngIf="this.productCode != ''">
+                        <label cLabel for="" class="text-nowrap label-ref-id fw-bold">Generic Radars</label>
+                        <tag-input [(ngModel)]="product.radarsCsv" [ngModelOptions]="{standalone:true}" [onlyFromAutocomplete]="false" [theme]="'bootstrap'" 
+                            placeholder="Multi-entry field..." secondaryPlaceholder="Multi-entry field..." [modelAsStrings]="true" 
+                            [onAdding]="validateRadarInput" (onAdd)="saveProduct()" (onRemove)="saveProduct()" (onSelect)="viewRadar($event)">
+                        </tag-input>
+                    </c-col>
+                </form>
+            </c-card-body>
+        </c-card>
+
+        <c-form-check [switch]="true" *ngIf="isSre" class="mb-2">
+            <input cFormCheckInput type="checkbox" [(ngModel)]="showSreOwnAppsOnly" [ngModelOptions]="{standalone:true}" (change)="updateFilterAppsFlag()" />
+            <label cFormCheckLabel class="fw-bold fst-italic">Filter my apps</label>
+        </c-form-check>
+        <c-card class="mb-2" *ngFor="let app of filteredApps()">
+            <c-card-header color="secondary" class="d-flex justify-content-between align-items-center">
+                <span><b>{{app.internalName}}</b> config for <b>{{productCode}}</b></span>
+                <c-form-check [switch]="true">
+                    <input cFormCheckInput type="checkbox" [(ngModel)]="app.configure" [ngModelOptions]="{standalone:true}" (change)="changeSetup(app)" />
+                    <label cFormCheckLabel>Setup</label>
+                </c-form-check>
+            </c-card-header>
+            <c-card-body *ngIf="app.configure" class="p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let appConfig of app.appConfigs">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                <span class="text-nowrap">{{appConfig.name}}</span>
+                                <button cButton size="sm" color="light" (click)="clearConfigSetValue(appConfig)" class="text-nowrap ms-2" *ngIf="appConfig.selectedValue">
+                                    <fa-icon [icon]="faEraser" title="Clear selected value"></fa-icon>
+                                </button>
+                            </div>
+                            <div class="my-1">
+                                <div *ngIf="!appConfig.multi">
+                                    <input cFormControl type="text" size="50%" [attr.list]=appConfig.id [(ngModel)]="appConfig.selectedValue" [ngModelOptions]="{standalone:true}" (blur)="saveProductApps()">
+                                    <datalist id="{{appConfig.id}}">
+                                        <option *ngFor="let appConfigValue of appConfig.values" [value]="appConfigValue.val"></option>
+                                    </datalist>
+                                </div>
+                                <div *ngIf="appConfig.multi">
+                                    <tag-input [(ngModel)]="appConfig.selectedValue" [ngModelOptions]="{standalone:true}" [onlyFromAutocomplete]="false" theme='minimal' 
+                                        placeholder="Multi-select items..." secondaryPlaceholder="Multi-select items..." [modelAsStrings]="true" 
+                                        [addOnPaste]="true" [pasteSplitPattern]="splitPattern" (onBlur)="saveProductApps()" (onSelect)="copyToClipboard($event)">
+                                        <tag-input-dropdown [showDropdownIfEmpty]="true" [autocompleteItems]="appConfig.valuesCsv">
+                                            <ng-template let-item="item">
+                                                {{ item.display }}
+                                            </ng-template>
+                                        </tag-input-dropdown>
+                                    </tag-input>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                <span class="text-nowrap label-ref-id">{{app.internalName}} Radars</span>
+                            </div>
+                            <div class="my-1">
+                                <tag-input [(ngModel)]="app.radarsCsv" [ngModelOptions]="{standalone:true}" [onlyFromAutocomplete]="false" [theme]="'bootstrap'" 
+                                    placeholder="Multi-entry field..." secondaryPlaceholder="Multi-entry field..." [modelAsStrings]="true" 
+                                    [onAdding]="validateRadarInput" (onAdd)="saveProductAppRadars()" (onRemove)="saveProductAppRadars()" (onSelect)="viewRadar($event)">
+                                </tag-input>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>
+
+<c-modal id="needByDateModal" [visible]="needByDateVisible" [keyboard]="false" [backdrop]="false" alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Need-by-Date</h5>
+        <button (click)="cancelNeedByDateModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        <div class="input-group text-nowrap">
+            <input
+                cFormControl
+                placeholder="yyyy-mm-dd"
+                name="dp"
+                ngbDatepicker
+                [(ngModel)]="needByDateParsed"
+                #d="ngbDatepicker"
+                (click)="d.toggle()"
+                autofocus
+            />
+            <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
+        </div>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="cancelNeedByDateModal()" cButton color="secondary">
+        Cancel
+        </button>
+        <button (click)="saveProductSites()" cButton color="primary" [disabled]="!needByDateParsed">Confirm</button>
+    </c-modal-footer>
+</c-modal>
+
+<c-modal id="configWarningModal" [visible]="configWarningVisible" [keyboard]="false" [backdrop]="false" alignment="center" size="lg">
+    <c-modal-header>
+        <h5 cModalTitle>Config Warning</h5>
+        <button (click)="cancelSaveDueToWarnings()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        <table [striped]="true" cTable class="p-3" small>
+            <thead>
+                <tr>
+                    <th>Feature</th>
+                    <th>Config</th>
+                    <th>Min Required</th>
+                    <th>Current</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr *ngFor="let v of violatedFeatures">
+                    <td>{{v.featureName}}</td>
+                    <td>{{v.configName}}</td>
+                    <td>{{v.configValues}}</td>
+                    <td>{{v.selectedValues}}</td>
+                </tr>
+            </tbody>
+        </table>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="cancelSaveDueToWarnings()" cButton color="secondary">
+        Cancel
+        </button>
+        <button (click)="proceedWithConfigChanges()" cButton color="primary">Proceed Anyway</button>
+    </c-modal-footer>
+</c-modal>
+
+<a [href]="targetLink" target="_blank" id="targetLinkTag" class="d-none"></a>

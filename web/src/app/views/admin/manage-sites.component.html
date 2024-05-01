@@ -1,0 +1,14 @@
+<c-row>
+    <c-col xs="12">
+        <c-card class="mb-4">
+            <c-card-header class="d-flex justify-content-between align-items-center">
+                <strong>Sites</strong>
+                <a [routerLink]="['/admin/site-details','']" class="btn btn-xs btn-default card-header-button">Add</a>
+            </c-card-header>
+            <angular2-smart-table 
+                    [settings]="settings" 
+                    [source]="sites"
+                    ></angular2-smart-table>
+        </c-card>
+    </c-col>
+</c-row>

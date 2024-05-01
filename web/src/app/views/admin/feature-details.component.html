@@ -1,0 +1,140 @@
+<c-row>
+    <c-col xs="12">
+        <c-card class="mb-4">
+            <c-card-header class="d-flex justify-content-between align-items-center">
+                <strong>Feature Details</strong>
+                <button type="button" class="btn btn-xs btn-default card-header-button" (click)="addFeature()" *ngIf="!featureName">Save</button>
+            </c-card-header>
+            <c-card-body>
+                <form cForm class="row g-3">
+                    <c-col md="12">
+                        <label cLabel for="">*Name</label>
+                        <input cFormControl type="text" [(ngModel)]="feature.name" [ngModelOptions]="{standalone:true}" required (blur)="saveFeature()">
+                    </c-col>
+                    <c-col md="12">
+                        <label cLabel for="">*Rollout Phase</label>
+                        <input cFormControl type="text" [ngModel]="feature.rolloutPhase" [ngModelOptions]="{standalone:true}" disabled>
+                    </c-col>
+                    <c-col md="12" *ngIf="this.featureName != ''">
+                        <label cLabel for="">*Sites</label>
+                        <tag-input [ngModel]="sites" [ngModelOptions]="{standalone:true}" [identifyBy]="'id'" [onlyFromAutocomplete]="true" theme='minimal' 
+                            placeholder="Add Site" secondaryPlaceholder="Add Site" (onAdd)="triggerAddSite($event)" (onRemove)="deleteFeatureSite($event)" (onSelect)="goToRequest($event)">
+                            <tag-input-dropdown [showDropdownIfEmpty]="true" [autocompleteItems]="possibleSites" [keepOpen]="false">
+                                <ng-template let-item="item">
+                                    {{ item.display }}
+                                </ng-template>
+                            </tag-input-dropdown>
+                        </tag-input>
+                    </c-col>
+                    <c-col md="12" *ngIf="this.featureName != ''">
+                        <label cLabel for="" class="text-nowrap label-ref-id fw-bold">Generic Radars</label>
+                        <tag-input [(ngModel)]="feature.radarsCsv" [ngModelOptions]="{standalone:true}" [onlyFromAutocomplete]="false" [theme]="'bootstrap'" 
+                            placeholder="Multi-entry field..." secondaryPlaceholder="Multi-entry field..." [modelAsStrings]="true" 
+                            [onAdding]="validateRadarInput" (onAdd)="saveFeature()" (onRemove)="saveFeature()" (onSelect)="viewRadar($event)">
+                        </tag-input>
+                    </c-col>
+                </form>
+            </c-card-body>
+        </c-card>
+
+        <c-card class="mb-4" *ngIf="featureName">
+            <c-card-header color="secondary">
+                <strong>{{feature.name}}</strong>-enabled products
+            </c-card-header>
+            <c-card-body>
+                <div class="col-sm-12 py-1">
+                    <a cButton size="sm" color="light" class="position-relative me-2 mb-2" *ngFor="let pf of productFeatures" [routerLink]="['/admin/product-details',pf.product.code]">
+                        {{pf.product.code}}
+                    </a>
+                </div>
+            </c-card-body>
+        </c-card>
+
+        <c-form-check [switch]="true" *ngIf="isSre" class="mb-2">
+            <input cFormCheckInput type="checkbox" [(ngModel)]="showSreOwnAppsOnly" [ngModelOptions]="{standalone:true}" (change)="updateFilterAppsFlag()" />
+            <label cFormCheckLabel class="fw-bold fst-italic">Filter my apps</label>
+        </c-form-check>
+        <c-card class="mb-2" *ngFor="let app of filteredApps()">
+            <c-card-header color="secondary" class="d-flex justify-content-between align-items-center">
+                <strong>{{app.internalName}}</strong>
+                <c-form-check [switch]="true">
+                    <input cFormCheckInput type="checkbox" [(ngModel)]="app.configure" [ngModelOptions]="{standalone:true}" />
+                    <label cFormCheckLabel>Setup</label>
+                </c-form-check>
+            </c-card-header>
+            <c-card-body *ngIf="app.configure" class="p-0">
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item d-flex justify-content-between align-items-start" *ngFor="let appConfig of app.appConfigs">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                <span class="text-nowrap">{{appConfig.name}}</span>
+                            </div>
+                            <div class="my-1">
+                                <div *ngIf="!appConfig.multi">
+                                    <input cFormControl type="text" size="50%" [attr.list]=appConfig.id [(ngModel)]="appConfig.selectedValue" [ngModelOptions]="{standalone:true}" (blur)="saveFeatureApps()">
+                                    <datalist id="{{appConfig.id}}">
+                                        <option *ngFor="let appConfigValue of appConfig.values" [value]="appConfigValue.val"></option>
+                                    </datalist>
+                                </div>
+                                <div *ngIf="appConfig.multi">
+                                    <tag-input [(ngModel)]="appConfig.selectedValue" [ngModelOptions]="{standalone:true}" [onlyFromAutocomplete]="false" theme='minimal' 
+                                        placeholder="Multi-select items..." secondaryPlaceholder="Multi-select items..." [modelAsStrings]="true" 
+                                        [addOnPaste]="true" [pasteSplitPattern]="splitPattern" (onBlur)="saveFeatureApps()" (onSelect)="copyToClipboard($event)">
+                                        <tag-input-dropdown [showDropdownIfEmpty]="true" [autocompleteItems]="appConfig.valuesCsv">
+                                            <ng-template let-item="item">
+                                                {{ item.display }}
+                                            </ng-template>
+                                        </tag-input-dropdown>
+                                    </tag-input>
+                                </div>
+                            </div>
+                        </div>
+                    </li>
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">
+                                <span class="text-nowrap label-ref-id">{{app.internalName}} Radars</span>
+                            </div>
+                            <div class="my-1">
+                                <tag-input [(ngModel)]="app.radarsCsv" [ngModelOptions]="{standalone:true}" [onlyFromAutocomplete]="false" [theme]="'bootstrap'" 
+                                    placeholder="Multi-entry field..." secondaryPlaceholder="Multi-entry field..." [modelAsStrings]="true" 
+                                    [onAdding]="validateRadarInput" (onAdd)="saveFeatureAppRadars()" (onRemove)="saveFeatureAppRadars()" (onSelect)="viewRadar($event)">
+                                </tag-input>
+                            </div>
+                        </div>
+                    </li>
+                </ul>
+            </c-card-body>
+        </c-card>
+    </c-col>
+</c-row>
+
+<c-modal id="needByDateModal" [visible]="needByDateVisible" [keyboard]="false" [backdrop]="false" alignment="center">
+    <c-modal-header>
+        <h5 cModalTitle>Need-by-Date</h5>
+        <button (click)="cancelNeedByDateModal()" cButtonClose></button>
+    </c-modal-header>
+    <c-modal-body>
+        <div class="input-group text-nowrap">
+            <input
+                cFormControl
+                placeholder="yyyy-mm-dd"
+                name="dp"
+                ngbDatepicker
+                [(ngModel)]="needByDateParsed"
+                #d="ngbDatepicker"
+                (click)="d.toggle()"
+                autofocus
+            />
+            <button class="btn btn-outline-secondary bi bi-calendar3" (click)="d.toggle()" type="button"></button>
+        </div>
+    </c-modal-body>
+    <c-modal-footer>
+        <button (click)="cancelNeedByDateModal()" cButton color="secondary">
+        Cancel
+        </button>
+        <button (click)="saveFeatureSites()" cButton color="primary" [disabled]="!needByDateParsed">Confirm</button>
+    </c-modal-footer>
+</c-modal>
+
+<a [href]="targetLink" target="_blank" id="targetLinkTag" class="d-none"></a>
