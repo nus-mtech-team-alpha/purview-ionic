@@ -1,0 +1,10 @@
+name: 01 - SAST pipeline
+
+on: 
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  dast:
+    name: dast
+    runs-on: ubuntu-latest
