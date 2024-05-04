@@ -1,0 +1,26 @@
+# name: 00 - Main CI / CD Pipeline
+
+# on: 
+#   push:
+#     branches: [ "development" ]
+#     paths-ignore: 
+#     - '**/*.md'
+#     - '**/*.txt'
+#   pull_request:
+#     branches: [ "development" ]
+#     types: [opened, synchronize, reopened]
+#     paths-ignore: 
+#       - '**/*.md'
+#       - '**/*.txt'
+#   workflow_dispatch:
+
+# jobs:
+#   sast:
+#     name: sast
+#     uses: ./.github/workflows/01-sast.yml
+#     secrets: inherit
+  
+#   dast:
+#     name: dast
+#     uses: ./.github/workflows/02-dast.yml
+#     secrets: inherit
